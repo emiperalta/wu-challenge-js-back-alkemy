@@ -1,0 +1,32 @@
+@baseUrl = http://localhost:<PORT>/api
+
+###
+GET {{baseUrl}}
+
+
+###
+GET {{baseUrl}}/:id
+
+
+###
+POST {{baseUrl}}
+Content-Type: application/json
+
+{
+  "title": "title test",
+  "content": "content test",
+  "image": "test.jpg",
+  "categoryId": 2
+}
+
+###
+PATCH {{baseUrl}}/:id
+Content-Type: application/json
+
+{
+  "title": "title test update",
+  "categoryId": 1
+}
+
+###
+DELETE {{baseUrl}}/:id

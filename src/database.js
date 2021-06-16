@@ -21,11 +21,18 @@ Post.belongsTo(Category);
   try {
     await sequelize.authenticate();
     console.log('\ndb connected\n');
-    await sequelize.sync({ force: false });
+    await sequelize.sync({ force: true });
+    await Category.bulkCreate([
+      { name: 'Programming' },
+      { name: 'Music' },
+      { name: 'Videogames' },
+      { name: 'Travel' },
+      { name: 'Food' },
+    ]);
     console.log('\nsynchronized tables\n');
   } catch (err) {
     console.error(err);
   }
 })();
 
-module.exports = { Post };
+module.exports = { Category, Post };
