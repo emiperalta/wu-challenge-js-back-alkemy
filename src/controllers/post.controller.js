@@ -28,10 +28,18 @@ const getOne = async (req, res) => {
 };
 
 const addOne = async (req, res) => {
+  const { categoryId } = req.body;
   try {
+    if (!categoryId) {
+      return res.status(400).json({ error: '"categoryId" field must not be empty' });
+    }
+    const categoryExists = await Category.findOne({ where: { id: categoryId } });
+    if (!categoryExists)
+      return res.status(404).json({ error: 'category not found' });
     const post = await Post.create({ ...req.body });
     const newPost = await Post.findOne({
       where: { id: post.id },
+      include: [{ model: Category, attributes: ['name'] }],
     });
     return res.status(201).json(newPost);
   } catch (error) {
@@ -41,9 +49,17 @@ const addOne = async (req, res) => {
 
 const updateOne = async (req, res) => {
   const { id } = req.params;
+  const { categoryId } = req.body;
+  let categoryExists;
   try {
     const postToUpdate = await Post.findOne({ where: { id } });
     if (!postToUpdate) return res.status(404).json({ error: 'post not found' });
+    if (categoryId) {
+      categoryExists = await Category.findOne({ where: { id: categoryId } });
+      if (!categoryExists) {
+        return res.status(404).json({ error: 'category not found ' });
+      }
+    }
     await postToUpdate.update(req.body);
     return res.status(200).json(postToUpdate);
   } catch (error) {
