@@ -1,5 +1,7 @@
 const { Category, Post } = require('../database');
 
+const { validateImage } = require('../utils/validateImage');
+
 const getAll = async (req, res) => {
   try {
     const posts = await Post.findAll({
@@ -28,14 +30,21 @@ const getOne = async (req, res) => {
 };
 
 const addOne = async (req, res) => {
-  const { categoryId } = req.body;
+  const { categoryId, image } = req.body;
   try {
     if (!categoryId) {
       return res.status(400).json({ error: '"categoryId" field must not be empty' });
     }
     const categoryExists = await Category.findOne({ where: { id: categoryId } });
-    if (!categoryExists)
+    if (!categoryExists) {
       return res.status(404).json({ error: 'category not found' });
+    }
+    const imageIsValid = validateImage(image);
+    if (!imageIsValid) {
+      return res
+        .status(400)
+        .json({ error: 'the image must be in .jpg, .jpeg, .png or .gif format' });
+    }
     const post = await Post.create({ ...req.body });
     const newPost = await Post.findOne({
       where: { id: post.id },
@@ -49,15 +58,22 @@ const addOne = async (req, res) => {
 
 const updateOne = async (req, res) => {
   const { id } = req.params;
-  const { categoryId } = req.body;
-  let categoryExists;
+  const { categoryId, image } = req.body;
   try {
     const postToUpdate = await Post.findOne({ where: { id } });
     if (!postToUpdate) return res.status(404).json({ error: 'post not found' });
     if (categoryId) {
-      categoryExists = await Category.findOne({ where: { id: categoryId } });
+      const categoryExists = await Category.findOne({ where: { id: categoryId } });
       if (!categoryExists) {
         return res.status(404).json({ error: 'category not found ' });
+      }
+    }
+    if (image) {
+      const imageIsValid = validateImage(image);
+      if (!imageIsValid) {
+        return res
+          .status(400)
+          .json({ error: 'the image must be in .jpg, .jpeg, .png or .gif format' });
       }
     }
     await postToUpdate.update(req.body);
