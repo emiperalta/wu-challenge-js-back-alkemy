@@ -1,4 +1,4 @@
-@baseUrl = http://localhost:<PORT>/api
+@baseUrl = http://localhost:<PORT>/api/posts
 
 ###
 GET {{baseUrl}}
